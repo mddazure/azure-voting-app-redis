@@ -1,0 +1,67 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: azure-vote-front-redisazure
+spec:
+  replicas: 3
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  minReadySeconds: 5 
+  template:
+    metadata:
+      labels:
+        app: azure-vote-front
+    spec:
+      nodeSelector:
+        "beta.kubernetes.io/os": linux
+      containers:
+      - name: azure-vote-front
+        image: mddcontainerregistry.azurecr.io/azure-vote-front:v1
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            cpu: 250m
+          limits:
+            cpu: 500m
+        env:
+        - name: REDIS
+          value: "demoaks.redis.cache.windows.net"
+        - name: REDIS_PWD
+          value: "kPIdjKnVlli6JNraXb1aUZZIxK6jnvQX8lhpP2x55YU="
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: azure-vote-front-clusterip
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: azure-vote-front
+  type: ClusterIP
+
+
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: azure-vote-front-redisazure-ingress
+  annotations:
+    kubernetes.io/ingress.class: addon-http-application-routing
+spec:
+  rules:
+  - host: vote.16fe29a576864e71b961.westeurope.aksapp.io
+    http:
+      paths:
+      - backend:
+          serviceName: azure-vote-front-clusterip
+          servicePort: 80
+        path: /
+

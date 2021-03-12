@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: azure-vote-front-redisazure
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: azure-vote-front
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  minReadySeconds: 8
+  template:
+    metadata:
+      labels:
+        app: azure-vote-front
+    spec:
+      nodeSelector:
+        "beta.kubernetes.io/os": linux
+      containers:
+      - name: azure-vote-front
+        image: acrmdd.azurecr.io/azure-vote-front:v1
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 250m
+          limits:
+            cpu: 500m
+        env:
+        - name: REDIS
+          value: "mddredis.redis.cache.windows.net"
+        - name: REDIS_PWD
+          value: "aEhLd9XGW7ALopFADQOlUS8VNG4YC0dUp+lRDcSzei0="
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: azure-vote-front-redisazure
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+  selector:
+    app: azure-vote-front

@@ -1,0 +1,22 @@
+apiVersion: apps/v1beta1
+kind: Pod
+metadata:
+  name: azure-vote-front-redisazure
+spec:
+  containers:
+  - name: azure-vote-front
+    image: mddcontainerregistry.azurecr.io/azure-vote-front:v1
+    ports:
+  - containerPort: 80
+    resources:
+      requests:
+        cpu: 250m
+      limits:
+        cpu: 500m
+    env:
+      - name: REDIS
+        value: "demoaks.redis.cache.windows.net"
+      - name: REDIS_PWD
+        value: "kPIdjKnVlli6JNraXb1aUZZIxK6jnvQX8lhpP2x55YU="
+
+
